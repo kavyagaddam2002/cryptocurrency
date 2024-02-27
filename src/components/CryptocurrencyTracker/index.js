@@ -7,7 +7,7 @@ import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
 import CryptocurrenciesList from '../CryptocurrenciesList'
 
 class CryptocurrencyTracker extends Component {
-  state = {listData: [], isloading: true}
+  state = {listData: [], loading: true}
 
   componentDidMount() {
     this.getData()
@@ -17,33 +17,36 @@ class CryptocurrencyTracker extends Component {
     const response = await fetch(
       'https://apis.ccbp.in/crypto-currency-converter',
     )
-    const data = await response.json()
-
-    const formattedData = data.map(eachItem => ({
-      currencyName: data.currency_name,
-      usdValue: data.usd_value,
-      euroValue: data.euro_value,
-      id: data.id,
-      currencyLogo: data.currency_logo,
-    }))
-
-    this.setState({isloading: false, listData: formattedData})
+    const fetchedData = await response.json()
+    this.setState({
+      cyptoCurrenciesData: fetchedData.map(eachItem => ({
+        currencyName: eachItem.currency_name,
+        usdValue: eachItem.usd_value,
+        euroValue: eachItem.euro_value,
+        id: eachItem.id,
+        currencyLogo: eachItem.currency_logo,
+      })),
+      loading: false,
+    })
   }
 
+  renderCryptoList = () => {
+    const {listData} = this.state
+    return <CryptocurrenciesList listData={listData} />
+  }
+
+  renderLoader = () => (
+    <div className="loader-containerr">
+      <Loader type="Rings" color="#ffffff" height={80} width={80} />
+    </div>
+  )
+
   render() {
-    const {isloading, listData} = this.state
+    const {loading} = this.state
     return (
-      
-          {isloading ? (
-            <div testid="loader">
-              <Loader type="Rings" color="#ffffff" height={80} width={80} />
-            </div>
-          ) : (
-            listData.map(item => (
-              <CryptocurrenciesList key={item.id} currencyItem={item} />
-            ))
-          )}
-        
+      <div className="loader-container">
+        {loading ? this.renderLoader() : this.renderCryptoList()}
+      </div>
     )
   }
 }
